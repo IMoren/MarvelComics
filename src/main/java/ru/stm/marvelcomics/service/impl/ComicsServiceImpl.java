@@ -43,16 +43,13 @@ public class ComicsServiceImpl implements ComicsService {
 
     @Override
     public Mono<Object> getById(long id, int order) {
-        Optional<Comics> optionalComics = comicsRepo.findById(id);
-        if (id < 0 || !optionalComics.isPresent()) {
+        if (!comicsRepo.existsById(id)) {
             return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                     String.format("по id = %d ничего не найдено", id)));
         }
-        Comics comics = optionalComics.get();
+        Comics comics = comicsRepo.findById(id).get();
         if (order <= 0) {
-            return Mono.just(comics).cast(Object.class)
-                    .doOnError(e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                            String.format("по id = %d ничего не найдено", id))));
+            return Mono.just(comics);
         }
         return getPage(comics, order);
     }
@@ -98,12 +95,12 @@ public class ComicsServiceImpl implements ComicsService {
 
     @Override
     public Mono<Void> addCharacter(long id, long characterId) {
-        return null;
+        return Mono.error(new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
     public Mono<Void> deleteCharacter(long id, long characterId) {
-        return null;
+        return Mono.error(new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
