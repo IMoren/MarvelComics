@@ -17,6 +17,11 @@ import ru.stm.marvelcomics.service.CharacterService;
 import ru.stm.marvelcomics.service.FileService;
 import ru.stm.marvelcomics.util.Const;
 
+/**
+ * <h2>Сервис для работы с репозиторием персонажей </h2>
+ *
+ * @see Char#Char()
+ */
 @RequiredArgsConstructor
 @Service
 public class CharacterServiceImpl implements CharacterService {

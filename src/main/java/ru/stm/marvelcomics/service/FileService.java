@@ -12,14 +12,30 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.UUID;
 
+/**
+ * <h2>FileService для работы с файлами</h2>
+ */
 @Log4j
 public class FileService {
-    Path path;
+    private Path path;
 
+    /**
+     * Подготовка к получению файла
+     *
+     * @return this
+     */
     public static FileService upload() {
         return new FileService();
     }
 
+    /**
+     * Создание файла на диске. Генерация уникального имени.
+     *
+     * @param dir      папка в пути к файлу
+     * @param id       папка в пути к файлу
+     * @param filename имя получаемого файла
+     * @return this
+     */
     public FileService createPath(String dir, long id, String filename) {
         String uploadDirectory = String.format("%s%s/%d/", Const.PATH_FILE, dir, id);
         if (!Files.exists(Paths.get(uploadDirectory))) {
@@ -40,16 +56,32 @@ public class FileService {
         return this;
     }
 
-    public FileService transfer (FilePart file){
+    /**
+     * Загрузка файла
+     *
+     * @param file
+     * @return this
+     */
+    public FileService transfer(FilePart file) {
         file.transferTo(path);
         return this;
     }
 
-    public String getFilename(){
+    /**
+     * Возвращает уникальное имя файла
+     *
+     * @return filename
+     */
+    public String getFilename() {
         return path.getFileName().toString();
     }
 
-
+    /**
+     * Удаляет файл
+     *
+     * @param pathFile
+     * @return false - при удалении произошло исключение
+     */
     public static boolean delete(String pathFile) {
         try {
             return Files.deleteIfExists(Paths.get(String.format("%s/%s", Const.PATH_FILE, pathFile)));
@@ -59,6 +91,13 @@ public class FileService {
         }
     }
 
+    /**
+     * Удаляет папку с файлами
+     *
+     * @param dir папка из которой удалить
+     * @param id  папка которую удалить
+     * @return false - при удалении файлов произошло исключение
+     */
     public static boolean delete(String dir, long id) {
         Path path = Paths.get(String.format("%s%s/%d", Const.PATH_FILE, dir, id));
         try {

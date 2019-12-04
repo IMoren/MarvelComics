@@ -23,6 +23,12 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * <h2>Сервис для работы с репозиторием комиксов и страниц комиксов</h2>
+ *
+ * @see Comics#Comics()
+ * @see ComicsPage#ComicsPage()
+ */
 @RequiredArgsConstructor
 @Service
 public class ComicsServiceImpl implements ComicsService {
@@ -110,17 +116,18 @@ public class ComicsServiceImpl implements ComicsService {
                     String.format("по id = %d ничего не найдено", id)));
         }
         Comics comics = comicsRepo.findById(id).get();
-        files.flatMap(f -> {
-            pageRepo.save(ComicsPage.builder()
-                    .comics(comics)
-                    .order(order)
-                    .pathFile(FileService.upload()
-                            .createPath(Const.COMICS_DIR, id, f.filename())
-                            .transfer(f)
-                            .getFilename())
-                    .build());
-            return Mono.empty();
-        }).subscribe();
+        files.index()
+                .flatMap(f -> {
+                    pageRepo.save(ComicsPage.builder()
+                            .comics(comics)
+                            .order(f.getT1() + order)
+                            .pathFile(FileService.upload()
+                                    .createPath(Const.COMICS_DIR, id, f.getT2().filename())
+                                    .transfer(f.getT2())
+                                    .getFilename())
+                            .build());
+                    return Mono.empty();
+                }).subscribe();
         return Mono.empty();
     }
 
@@ -134,6 +141,13 @@ public class ComicsServiceImpl implements ComicsService {
         return Mono.empty();
     }
 
+    /**
+     * Добавление изображения в комикс.
+     * Загрузка файла
+     *
+     * @param comics
+     * @param file
+     */
     private void addFile(Comics comics, Mono<FilePart> file) {
         file.flatMap(f -> {
             comics.setCover(FileService.upload()
@@ -144,11 +158,17 @@ public class ComicsServiceImpl implements ComicsService {
         }).subscribe();
     }
 
+    /**
+     * Возвращает страницу комикса
+     * @param comics
+     * @param order - номер страницы
+     * @return объект {@link PageDTO#view(Comics, ComicsPage)}
+     */
     private Mono<Object> getPage(Comics comics, int order) {
         return Mono.just(pageRepo.findAllByComics(comics)
                 .stream()
                 .sorted(Comparator.comparing(ComicsPage::getOrder))
-                .skip(order - 1)
+                .skip(order)
                 .limit(1)
                 .map(page -> PageDTO.view(comics, page)))
                 .cast(Object.class)

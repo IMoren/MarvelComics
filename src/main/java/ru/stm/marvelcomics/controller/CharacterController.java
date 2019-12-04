@@ -10,12 +10,17 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.stm.marvelcomics.domain.Char;
+import ru.stm.marvelcomics.domain.Comics;
+import ru.stm.marvelcomics.domain.dto.CharacterDTO;
+import ru.stm.marvelcomics.domain.dto.ComicsDTO;
 import ru.stm.marvelcomics.service.CharacterService;
 import ru.stm.marvelcomics.util.Const;
 import ru.stm.marvelcomics.util.Validation;
 
 /**
- * Обработка rest запросов на адрес ... /v1/public/character
+ * <h2>Обработка rest запросов на адрес ... /v1/public/character</h2>
+ *
+ * @see Char#Char()
  */
 @RequiredArgsConstructor
 @RestController
@@ -27,9 +32,11 @@ public class CharacterController {
     /**
      * Просмотр списка всех персонажей в лексографическом порядке
      *
-     * @param limit  Не обязательный.
-     * @param offset Не обязательный.
-     * @return json список персонажей (имя и изображение)
+     * @param limit  Не обязательный. Ограничение количества выдаваемых результатов</b>
+     *               Если не задан или задан некорректно, принимает значение по умолчанию
+     * @param offset Не обязательный. Кол-во элементов, которые должны быть пропущены</b>
+     *               Если не задан или задан некорректно, принимает значение по умолчанию
+     * @return json список объектов {@link CharacterDTO#preview(Char)} персонажей в кратком содержании
      */
     @GetMapping
     public Flux<Object> get(
@@ -42,7 +49,7 @@ public class CharacterController {
      * Просмотр полной информации персонажа
      *
      * @param id id персонажа
-     * @return json профиль персонажа со всеми полями
+     * @return json объект {@link Char#Char()} персонажа со всеми полями
      */
 
     @GetMapping(value = "/{id}")
@@ -54,8 +61,8 @@ public class CharacterController {
     /**
      * Просмотр списка комиксов, в которых задействован персонаж
      *
-     * @param id - id персонажа
-     * @return json список комиксов (название и обложка)
+     * @param id id персонажа
+     * @return json список объектов {@link ComicsDTO#preview(Comics)} ()} комиксов в кратком содержании
      */
     @GetMapping(value = "/{id}/comics")
     public Flux<Object> getComics(
@@ -68,9 +75,8 @@ public class CharacterController {
      *
      * @param jsonCharacter json-объект "character" с обязательным полем "name"
      * @param img           Не обязательный. Файл-изображение
-     * @return json профиль нового персонажа со всеми полями
+     * @return json - объект {@link Char#Char()} нового персонажа со всеми полями
      */
-
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Object> addCharacter(
@@ -88,17 +94,32 @@ public class CharacterController {
     }
 
     /**
-     * Изменениие данных существующего профиля персонажа
+     * Изменение данных персонаже
+     * <p>
+     * Предполагается, что будет удобнее редактрировать данные персонажа прямо на странице этого персонажа,</br>
+     * поэтому присутствует id в адресе</br>
+     * При этом не важно будет ли совпадать id в адресе с полем "id" в объекте json "сharacter"</br>
+     * Изменения затронут персонажа с тем id, который указан в json</br>
+     * Поля отсутвующие в json будут заменены пустыми значениями
      *
-     * @param character json-объект "character" с обязательными полями "id", "name".
-     * @param img       Не обязательный. Файл-изображение. Заменяет старое изображение на новое
-     * @return json профиль нового персонажа со всеми полями с обновленными значениями
+     * @param jsonCharacter json-объект "character" с обязательными полями "id", "name".
+     * @param img           Не обязательный. Файл-изображение. Заменяет старое изображение на новое</br>
+     * @return json объект {@link Char#Char()} персонажа со всеми полями с обновленными значениями
+     * @throws HttpStatus.400, если тело запроса содержит некорректные данные
+     * @throws HttpStatus.404, если персонажа с этим id не нашлось
      */
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Mono<Object> changeCharacter(
-            @RequestPart("character") Char character,
+            @RequestPart("character") String jsonCharacter,
             @RequestPart(name = "img", required = false) Mono<FilePart> img) {
+        Char character;
+        try {
+            character = jsonParser.readValue(jsonCharacter, Char.class);
+        } catch (JsonProcessingException e) {
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Недопустимый синтаксис или незаполнены обязательные поля: character {\"name\":\"name\"}"));
+        }
         return characterService.update(character, img);
     }
 
@@ -108,6 +129,7 @@ public class CharacterController {
      * @param id       id персонажа
      * @param comicsId id комикса
      * @return void
+     * @throws HttpStatus.400 если данные некорректны
      */
     @PostMapping("/{id}/comics")
     public Mono<Object> addComics(
@@ -126,11 +148,17 @@ public class CharacterController {
         return characterService.delete(id);
     }
 
+    /**
+     * Удаление комикса из списка комиксов, в которых задействован персонаж
+     *
+     * @param id       id персонажа
+     * @param comicsId id комикса
+     * @return
+     */
     @DeleteMapping("/{id}/comics")
     public Mono<Void> deleteComics(
             @PathVariable("id") Long id,
             @RequestParam("comics_id") Long comicsId) {
         return characterService.deleteComics(id, comicsId);
     }
-
 }

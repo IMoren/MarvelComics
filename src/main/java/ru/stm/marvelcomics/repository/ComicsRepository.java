@@ -7,7 +7,9 @@ import org.springframework.data.repository.query.Param;
 import ru.stm.marvelcomics.domain.Comics;
 
 /**
- * Репозиторий для работы с комиксами
+ * <h2>Репозиторий для работы с комиксами</h2>
+ *
+ * @see Comics#Comics()
  */
 public interface ComicsRepository extends JpaRepository<Comics, Long> {
     @Modifying

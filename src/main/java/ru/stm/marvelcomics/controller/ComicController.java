@@ -10,13 +10,18 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.stm.marvelcomics.domain.Char;
 import ru.stm.marvelcomics.domain.Comics;
+import ru.stm.marvelcomics.domain.ComicsPage;
 import ru.stm.marvelcomics.service.ComicsService;
 import ru.stm.marvelcomics.util.Const;
 import ru.stm.marvelcomics.util.Validation;
 
 /**
- * Обработка rest запросов на адрес ... /v1/public/comics
+ * <h2>Обработка rest запросов на адрес ... /v1/public/comics</h2>
+ *
+ * @see ComicsPage#ComicsPage()
+ * @see Comics#Comics()
  */
 @Log4j
 @RequiredArgsConstructor
@@ -33,9 +38,11 @@ public class ComicController {
      *               Допустимые значения:
      *               "title" - по названию,
      *               "release" - по дате публикации.
-     * @param limit  Не обязательный.
-     * @param offset Не обязательный.
-     * @return json список комиксов (название, дата публикации, изображение обложки)
+     * @param limit  Не обязательный. Ограничение количества выдаваемых результатов</b>
+     *               Если не задан или задан некорректно, принимает значение по умолчанию
+     * @param offset Не обязательный. Кол-во элементов, которые должны быть пропущены</b>
+     *               Если не задан или задан некорректно, принимает значение по умолчанию
+     * @return json список объектов {@link ru.stm.marvelcomics.domain.dto.ComicsDTO#preview(Comics)} комиксов в кратком содержании
      */
 
     @GetMapping
@@ -49,9 +56,11 @@ public class ComicController {
     /**
      * Просмотр полной информации о комиксе
      *
-     * @param id    - id комикса
-     * @param order Не обязательный. Номер страницы
-     * @return json-объект comics со всеми полями или страницу комикса
+     * @param id    id комикса
+     * @param order Не обязательный. Номер страницы. Если указан корректно, будет возвращена страница {@link ru.stm.marvelcomics.domain.dto.PageDTO#view(Comics, ComicsPage)}
+     * @return json-объект {@link Comics#Comics()} со всеми полями </br>
+     * или json-объект страницы комикса {@link ru.stm.marvelcomics.domain.dto.PageDTO#view(Comics, ComicsPage)}
+     * @throws HttpStatus.404, если комикса с этим id не нашлось
      */
     @GetMapping("/{id}")
     public Mono<Object> getComicsById(
@@ -63,8 +72,9 @@ public class ComicController {
     /**
      * Просмотр списка персонажей, задействованных в комиксе
      *
-     * @param id - id комикса
-     * @return json список персонажей (имя, портрет)
+     * @param id id комикса
+     * @return json список объектов {@link ru.stm.marvelcomics.domain.dto.CharacterDTO#preview(Char)} персонажей в кратком содержании
+     * @throws HttpStatus.404, если комикса с этим id не нашлось
      */
     @GetMapping("/{id}/characters")
     public Flux<Object> getCharacters(@PathVariable long id) {
@@ -76,7 +86,8 @@ public class ComicController {
      *
      * @param jsonComics json-объект character c обязателным полем "title"
      * @param file       Не обязательный. Файл-изображение
-     * @return json объект нового комикса со всеми полями
+     * @return json объект нового {@link Comics#Comics()} со всеми полями
+     * @throws HttpStatus.400, если тело запроса содержит некорректные данные
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -103,6 +114,7 @@ public class ComicController {
      *               Для нескольких файлов порядок будет соответствовать порядку их добавления.
      * @param images Файл-изображения. Один или несколько.
      * @return void;
+     * @throws HttpStatus.404, если комикса с этим id не нашлось
      */
     @PostMapping(value = "/{id}")
     public Mono<Object> addPage(
@@ -114,12 +126,19 @@ public class ComicController {
 
     /**
      * Изменение данных комикса
+     * <p>
+     * Предполагается, что будет удобнее редактрировать данные комикса прямо на странице этого комикса,</br>
+     * поэтому присутствует id в адресе</br>
+     * При этом не важно будет ли совпадать id в адресе с полем "id" в объекте json "comics"</br>
+     * Изменения затронут комикс с тем id, который указан в json</br>
+     * Поля отсутвующие в json будут заменены пустыми значениями
      *
-     * @param id         id комикса
-     * @param jsonComics json-объект character c обязателным полем "title"
-     *                   Если поля указаны не все, то будут заменены пустыми значениями
-     * @param img        Файл-изображение
-     * @return json-объект comics со всеми полями с обновленными значениями
+     * @param id         id не учитывается
+     * @param jsonComics json-объект {@link Comics#Comics()} c обязателным полем "title"
+     * @param img        Не обязательный. Файл-изображение</br>
+     * @return json-объект {@link Comics#Comics()} со всеми полями с обновленными значениями
+     * @throws HttpStatus.400, если тело запроса содержит некорректные данные
+     * @throws HttpStatus.404, если комикса с этим id не нашлось
      */
 
     @PutMapping("/{id}")
@@ -139,8 +158,8 @@ public class ComicController {
     }
 
     /**
-     * Удаление комикса
-     * Удаление отдельной страницы, если задан параметр files
+     * Удаление комикса</br>
+     * Удаление отдельной страницы, если задан параметр file
      *
      * @param id   id комиска
      * @param file Не обязательный. Название файла
