@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ru.stm.marvelcomics.util.Const;
 
 import javax.persistence.*;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -54,7 +52,7 @@ public class Comics {
     private Collection<ComicsPage> pages = new ArrayList<>();
 
     @JsonIgnore
-    @ManyToMany(targetEntity = Char.class)
+    @ManyToMany(targetEntity = Char.class, fetch = FetchType.LAZY)
     @JoinTable(name = "comics_has_character",
             joinColumns = @JoinColumn(name = "comics_id"),
             inverseJoinColumns = @JoinColumn(name = "character_id"))
@@ -233,7 +231,7 @@ public class Comics {
     }
 
     public String getReleaseStr() {
-        return Const.FORMAT_DATE_TO_STRING.format(release);
+        return (release == null) ? "" : Const.FORMAT_DATE_TO_STRING.format(release);
     }
 
     public void setReleaseStr(String releaseStr) throws ParseException {

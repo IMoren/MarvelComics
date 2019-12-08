@@ -7,7 +7,6 @@ import ru.stm.marvelcomics.util.Const;
 
 import javax.persistence.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -60,7 +59,10 @@ public class Char {
     private String biography;
 
     @JsonIgnore
-    @ManyToMany(targetEntity = Comics.class, fetch = FetchType.EAGER, mappedBy = "characters")
+    @ManyToMany(targetEntity = Comics.class, fetch = FetchType.EAGER)
+    @JoinTable(name = "comics_has_character",
+            joinColumns = @JoinColumn(name = "character_id"),
+            inverseJoinColumns = @JoinColumn(name = "comics_id"))
     private Collection<Comics> comicsList = new ArrayList<>();
 
     /**
@@ -241,6 +243,6 @@ public class Char {
     }
 
     public String getCreateDateStr() {
-        return Const.FORMAT_DATE_TO_STRING.format(createDate);
+        return (createDate == null) ? "" : Const.FORMAT_DATE_TO_STRING.format(createDate);
     }
 }
