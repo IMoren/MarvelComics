@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.stm.marvelcomics.domain.Char;
+import ru.stm.marvelcomics.domain.Comics;
 import ru.stm.marvelcomics.domain.dto.CharacterDTO;
 import ru.stm.marvelcomics.domain.dto.ComicsDTO;
 import ru.stm.marvelcomics.repository.CharacterRepository;
@@ -16,6 +17,8 @@ import ru.stm.marvelcomics.repository.ComicsRepository;
 import ru.stm.marvelcomics.service.CharacterService;
 import ru.stm.marvelcomics.service.FileService;
 import ru.stm.marvelcomics.util.Const;
+
+import java.util.Optional;
 
 /**
  * <h2>Сервис для работы с репозиторием персонажей </h2>
@@ -36,6 +39,12 @@ public class CharacterServiceImpl implements CharacterService {
                 .skip(offset)
                 .limit(limit)
                 .map(CharacterDTO::preview));
+    }
+
+    @Override
+    public Char getCharacterById(Long id) {
+        return Optional.of(characterRepo.findById(id).get())
+                .orElseGet(null);
     }
 
     @Override
@@ -81,10 +90,11 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public Mono<Object> addComics(long id, long comicsId) {
-        if (comicsRepo.existsById(comicsId) && characterRepo.existsById(id)) {
-//            characterRepo.saveCharacterHasComics(id, comicsId);
-            return Mono.error(new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED));
+    public Mono<Object> addComics(long id, Comics comics) {
+        Char character = getCharacterById(id);
+        if (character != null && comics != null) {
+            character.addComics(comics);
+            return Mono.just(characterRepo.save(character));
         }
         return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST));
     }
@@ -100,9 +110,11 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     public Mono<Void> deleteComics(Long id, Long comicsId) {
-        if (characterRepo.existsById(id)) {
-//            characterRepo.deleteCharacterHasComics(id, comicsId);
-            return Mono.error(new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED));
+        Char character = getCharacterById(id);
+        if (character!=null) {
+            character.getComicsList().removeIf(comics -> comics.getId().equals(comicsId));
+            characterRepo.save(character);
+            return Mono.empty();
         }
         return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST));
     }
