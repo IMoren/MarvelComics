@@ -1,12 +1,16 @@
 package ru.stm.marvelcomics.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
 import ru.stm.marvelcomics.util.Const;
 
 import javax.persistence.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * <h2>Char (character) содержит данные о персонаже комикса</h2>
@@ -32,7 +36,13 @@ public class Char {
     /**
      * Дата первого упоминания о персонаже
      */
-    private String createDate;
+    @JsonIgnore
+    @Temporal(TemporalType.DATE)
+    private Date createDate;
+
+    @JsonProperty("createDate")
+    @Transient
+    private String createDateStr;
 
     /**
      * Путь к файлу изображения. Портрет персонажа
@@ -64,7 +74,7 @@ public class Char {
      * @param biography   биография
      * @param comicsList  коллекция {@link Comics#Comics()} в которых персонаж задействован
      */
-    public Char(Long id, @NonNull String name, String createDate, String portrait, String description, String biography, Collection<Comics> comicsList) {
+    public Char(Long id, @NonNull String name, Date createDate, String portrait, String description, String biography, Collection<Comics> comicsList) {
         this.id = id;
         this.name = name;
         this.createDate = createDate;
@@ -130,7 +140,7 @@ public class Char {
      *
      * @return createDate
      */
-    public String getCreateDate() {
+    public Date getCreateDate() {
         return this.createDate;
     }
 
@@ -185,7 +195,7 @@ public class Char {
      *
      * @param createDate
      */
-    public void setCreateDate(String createDate) {
+    public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
 
@@ -223,5 +233,13 @@ public class Char {
      */
     public void setComicsList(Collection<Comics> comicsList) {
         this.comicsList = comicsList;
+    }
+
+    public void setCreateDate(String createDate) throws ParseException {
+        this.createDate = new SimpleDateFormat(Const.FORMAT_STRING_TO_DATE).parse(createDate);
+    }
+
+    public String getCreateDateStr() {
+        return new SimpleDateFormat(Const.FORMAT_DATE_TO_STRING).format(createDate);
     }
 }
