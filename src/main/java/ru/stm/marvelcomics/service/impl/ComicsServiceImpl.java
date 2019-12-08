@@ -103,16 +103,6 @@ public class ComicsServiceImpl implements ComicsService {
     }
 
     @Override
-    public Mono<Void> addCharacter(long id, long characterId) {
-        return Mono.error(new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED));
-    }
-
-    @Override
-    public Mono<Void> deleteCharacter(long id, long characterId) {
-        return Mono.error(new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED));
-    }
-
-    @Override
     public Mono<Void> addPage(long id, long order, Flux<FilePart> files) {
         if (!comicsRepo.existsById(id)) {
             return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
