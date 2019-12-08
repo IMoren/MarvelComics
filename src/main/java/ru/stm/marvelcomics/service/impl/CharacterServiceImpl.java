@@ -13,7 +13,6 @@ import ru.stm.marvelcomics.domain.Comics;
 import ru.stm.marvelcomics.domain.dto.CharacterDTO;
 import ru.stm.marvelcomics.domain.dto.ComicsDTO;
 import ru.stm.marvelcomics.repository.CharacterRepository;
-import ru.stm.marvelcomics.repository.ComicsRepository;
 import ru.stm.marvelcomics.service.CharacterService;
 import ru.stm.marvelcomics.service.FileService;
 import ru.stm.marvelcomics.util.Const;
@@ -29,7 +28,6 @@ import java.util.Optional;
 @Service
 public class CharacterServiceImpl implements CharacterService {
     private final CharacterRepository characterRepo;
-    private final ComicsRepository comicsRepo;
 
     @Override
     public Flux<CharacterDTO> get(String sort, int limit, int offset) {
@@ -111,7 +109,7 @@ public class CharacterServiceImpl implements CharacterService {
     @Override
     public Mono<Void> deleteComics(Long id, Long comicsId) {
         Char character = getCharacterById(id);
-        if (character!=null) {
+        if (character != null) {
             character.getComicsList().removeIf(comics -> comics.getId().equals(comicsId));
             characterRepo.save(character);
             return Mono.empty();
