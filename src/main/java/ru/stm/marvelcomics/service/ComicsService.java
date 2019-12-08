@@ -78,26 +78,6 @@ public interface ComicsService {
     Mono<Void> delete(long id);
 
     /**
-     * Добавление персонажа в список персонажеи, задействованных в комиксе
-     *
-     * @param id          id комикса
-     * @param characterId id персонажа
-     * @return void
-     * @throws org.springframework.http.HttpStatus.404 если параметры заданы некорректно
-     */
-
-    Mono<Void> addCharacter(long id, long characterId);
-
-    /**
-     * Удаление персонажа из списка персонажей, задействованных в комиксе
-     *
-     * @param id          id комикса
-     * @param characterId id персонажа
-     * @return void
-     */
-    Mono<Void> deleteCharacter(long id, long characterId);
-
-    /**
      * Добавление страниц в комикс</br>
      * Загрузка файлов на диск
      *
