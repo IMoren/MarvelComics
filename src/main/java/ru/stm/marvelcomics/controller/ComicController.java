@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 import ru.stm.marvelcomics.domain.Char;
 import ru.stm.marvelcomics.domain.Comics;
 import ru.stm.marvelcomics.domain.ComicsPage;
+import ru.stm.marvelcomics.domain.dto.CharacterDTO;
+import ru.stm.marvelcomics.domain.dto.ComicsDTO;
 import ru.stm.marvelcomics.service.ComicsService;
 import ru.stm.marvelcomics.util.Const;
 import ru.stm.marvelcomics.util.Validation;
@@ -46,7 +48,7 @@ public class ComicController {
      */
 
     @GetMapping
-    public Flux<Object> getComics(
+    public Flux<ComicsDTO> getComics(
             @RequestParam(required = false, defaultValue = "title") String sort,
             @RequestParam(required = false, defaultValue = Const.LIMIT) Integer limit,
             @RequestParam(required = false, defaultValue = Const.OFFSET) Integer offset) {
@@ -77,7 +79,7 @@ public class ComicController {
      * @throws HttpStatus.404, если комикса с этим id не нашлось
      */
     @GetMapping("/{id}/characters")
-    public Flux<Object> getCharacters(@PathVariable long id) {
+    public Flux<CharacterDTO> getCharacters(@PathVariable long id) {
         return comicsService.getCharacters(id);
     }
 
@@ -91,7 +93,7 @@ public class ComicController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Object> addComics(
+    public Mono<Comics> addComics(
             @RequestPart("comics") String jsonComics,
             @RequestPart(name = "img", required = false) Mono<FilePart> file) {
         Comics comics = null;
@@ -117,7 +119,7 @@ public class ComicController {
      * @throws HttpStatus.404, если комикса с этим id не нашлось
      */
     @PostMapping(value = "/{id}")
-    public Mono<Object> addPage(
+    public Mono<Void> addPage(
             @PathVariable Long id,
             @RequestParam(required = false) Long order,
             @RequestPart Flux<FilePart> images) {
@@ -142,7 +144,7 @@ public class ComicController {
      */
 
     @PutMapping("/{id}")
-    public Mono<Object> putComics(
+    public Mono<Comics> putComics(
             @PathVariable Integer id,
             @RequestPart("comics") String jsonComics,
             @RequestPart(name = "img", required = false) Mono<FilePart> img) {

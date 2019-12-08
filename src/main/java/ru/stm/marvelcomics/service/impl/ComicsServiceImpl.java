@@ -36,15 +36,13 @@ public class ComicsServiceImpl implements ComicsService {
     private final ComicsPageRepository pageRepo;
 
     @Override
-    public Flux<Object> get(String sort, int limit, int offset) {
-        return Flux.just(comicsRepo
+    public Flux<ComicsDTO> get(String sort, int limit, int offset) {
+        return Flux.fromStream(comicsRepo
                 .findAll(Sort.by(sort))
                 .stream()
                 .skip(offset)
                 .limit(limit)
-                .map(ComicsDTO::preview))
-                .cast(Object.class)
-                .defaultIfEmpty(Flux.empty());
+                .map(ComicsDTO::preview));
     }
 
     @Override
@@ -61,17 +59,16 @@ public class ComicsServiceImpl implements ComicsService {
     }
 
     @Override
-    public Flux<Object> getCharacters(long id) {
-        return Flux.just(comicsRepo.findById(id).get()
+    public Flux<CharacterDTO> getCharacters(long id) {
+        return Flux.fromStream(comicsRepo.findById(id).get()
                 .getCharacters()
                 .stream()
-                .map(CharacterDTO::preview))
-                .cast(Object.class)
-                .defaultIfEmpty(Flux.empty());
+                .map(CharacterDTO::preview));
+
     }
 
     @Override
-    public Mono<Object> add(Comics comics, Mono<FilePart> file) {
+    public Mono<Comics> add(Comics comics, Mono<FilePart> file) {
         if (comics == null) return Mono.empty();
         comics.setId(null);
         Comics comicsFromDB = comicsRepo.save(comics); //получаем id
@@ -80,7 +77,7 @@ public class ComicsServiceImpl implements ComicsService {
     }
 
     @Override
-    public Mono<Object> update(Comics comics, Mono<FilePart> file) {
+    public Mono<Comics> update(Comics comics, Mono<FilePart> file) {
         if (comics == null) return Mono.empty();
         if (!comicsRepo.existsById(comics.getId())) {
             return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -110,7 +107,7 @@ public class ComicsServiceImpl implements ComicsService {
     }
 
     @Override
-    public Mono<Object> addPage(long id, long order, Flux<FilePart> files) {
+    public Mono<Void> addPage(long id, long order, Flux<FilePart> files) {
         if (!comicsRepo.existsById(id)) {
             return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                     String.format("по id = %d ничего не найдено", id)));
@@ -160,8 +157,9 @@ public class ComicsServiceImpl implements ComicsService {
 
     /**
      * Возвращает страницу комикса
+     *
      * @param comics
-     * @param order - номер страницы
+     * @param order  - номер страницы
      * @return объект {@link PageDTO#view(Comics, ComicsPage)}
      */
     private Mono<Object> getPage(Comics comics, int order) {

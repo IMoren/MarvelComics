@@ -6,6 +6,8 @@ import reactor.core.publisher.Mono;
 import ru.stm.marvelcomics.domain.Char;
 import ru.stm.marvelcomics.domain.Comics;
 import ru.stm.marvelcomics.domain.ComicsPage;
+import ru.stm.marvelcomics.domain.dto.CharacterDTO;
+import ru.stm.marvelcomics.domain.dto.ComicsDTO;
 
 /**
  * <h2>Интерфейс для работы с репозиторием комиксов и страниц комиксов</h2>
@@ -23,7 +25,7 @@ public interface ComicsService {
      * @param offset пропустить элементы
      * @return 0 или несколько объектов {@link ru.stm.marvelcomics.domain.dto.ComicsDTO#preview(Comics)}
      */
-    Flux<Object> get(String sort, int limit, int offset);
+    Flux<ComicsDTO> get(String sort, int limit, int offset);
 
     /**
      * Поиск комикса по его id</br>
@@ -42,7 +44,7 @@ public interface ComicsService {
      * @param id id комикса
      * @return 0 или несколько {@link ru.stm.marvelcomics.domain.dto.CharacterDTO#preview(Char)}
      */
-    Flux<Object> getCharacters(long id);
+    Flux<CharacterDTO> getCharacters(long id);
 
     /**
      * Добавление новго комикса</br>
@@ -52,7 +54,7 @@ public interface ComicsService {
      * @param file   1 файл изображения
      * @return новый объект {@link Comics#Comics()} со всеми полями
      */
-    Mono<Object> add(Comics comics, Mono<FilePart> file);
+    Mono<Comics> add(Comics comics, Mono<FilePart> file);
 
     /**
      * Изменение анных комикса</br>
@@ -64,7 +66,7 @@ public interface ComicsService {
      * @return объект {@link Comics#Comics()} с обновленными данными
      * @throws org.springframework.http.HttpStatus.404 елси в базе нет комикса, для которого пришли новые данные
      */
-    Mono<Object> update(Comics comics, Mono<FilePart> file);
+    Mono<Comics> update(Comics comics, Mono<FilePart> file);
 
     /**
      * Удаление комикса</br>
@@ -104,7 +106,7 @@ public interface ComicsService {
      * @param files 1 или несколько файлов
      * @return void
      */
-    Mono<Object> addPage(long id, long order, Flux<FilePart> files);
+    Mono<Void> addPage(long id, long order, Flux<FilePart> files);
 
     /**
      * Удаление страницы из комикса
