@@ -14,6 +14,7 @@ import ru.stm.marvelcomics.domain.Comics;
 import ru.stm.marvelcomics.domain.dto.CharacterDTO;
 import ru.stm.marvelcomics.domain.dto.ComicsDTO;
 import ru.stm.marvelcomics.service.CharacterService;
+import ru.stm.marvelcomics.service.ComicsService;
 import ru.stm.marvelcomics.util.Const;
 import ru.stm.marvelcomics.util.Validation;
 
@@ -27,6 +28,7 @@ import ru.stm.marvelcomics.util.Validation;
 @RequestMapping("/v1/public/character")
 public class CharacterController {
     private final CharacterService characterService;
+    private final ComicsService comicsService;
     private ObjectMapper jsonParser = new ObjectMapper();
 
     /**
@@ -135,7 +137,7 @@ public class CharacterController {
     public Mono<Object> addComics(
             @PathVariable("id") Long id,
             @RequestParam("comics_id") Long comicsId) {
-        return characterService.addComics(id, comicsId);
+        return characterService.addComics(id, comicsService.getComicsById(comicsId));
     }
 
     /**
