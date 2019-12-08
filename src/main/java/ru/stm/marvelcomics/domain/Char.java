@@ -235,11 +235,12 @@ public class Char {
         this.comicsList = comicsList;
     }
 
-    public void setCreateDate(String createDate) throws ParseException {
-        this.createDate = new SimpleDateFormat(Const.FORMAT_STRING_TO_DATE).parse(createDate);
+    public void setCreateDateStr(String createDateStr) throws ParseException {
+        this.createDate = Const.FORMAT_STRING_TO_DATE.parse(createDateStr);
+        this.createDateStr = Const.FORMAT_DATE_TO_STRING.format(this.createDate);
     }
 
     public String getCreateDateStr() {
-        return new SimpleDateFormat(Const.FORMAT_DATE_TO_STRING).format(createDate);
+        return Const.FORMAT_DATE_TO_STRING.format(createDate);
     }
 }

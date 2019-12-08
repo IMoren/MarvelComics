@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ru.stm.marvelcomics.util.Const;
 
 import javax.persistence.*;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -232,10 +233,11 @@ public class Comics {
     }
 
     public String getReleaseStr() {
-        return new SimpleDateFormat(Const.FORMAT_DATE_TO_STRING).format(release);
+        return Const.FORMAT_DATE_TO_STRING.format(release);
     }
 
-    public void setRelease(String releaseStr) throws ParseException {
-        this.release = new SimpleDateFormat(Const.FORMAT_STRING_TO_DATE).parse(releaseStr);
+    public void setReleaseStr(String releaseStr) throws ParseException {
+        this.release = Const.FORMAT_STRING_TO_DATE.parse(releaseStr);
+        this.releaseStr = Const.FORMAT_DATE_TO_STRING.format(release);
     }
 }
