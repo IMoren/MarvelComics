@@ -46,6 +46,12 @@ public class ComicsServiceImpl implements ComicsService {
     }
 
     @Override
+    public Comics getComicsById(Long id) {
+        return Optional.of(comicsRepo.findById(id).get())
+                .orElseGet(null);
+    }
+
+    @Override
     public Mono<Object> getById(long id, int order) {
         if (!comicsRepo.existsById(id)) {
             return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
