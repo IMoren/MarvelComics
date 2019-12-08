@@ -117,4 +117,5 @@ public interface ComicsService {
      */
     Mono<Void> deletePage(long id, String fileName);
 
+    Comics getComicsById(Long id);
 }
