@@ -12,7 +12,7 @@ CREATE TABLE public.comics
 (
   id int8 NOT NULL,
   cover CHARACTER VARYING255),
-  release CHARACTER VARYING(255),
+  release DATE,
   title CHARACTER VARYING(255),
   CONSTRAINT comics_pkey PRIMARY KEY (id)
 )

@@ -11,7 +11,7 @@ CACHE 1;
 CREATE TABLE public.characters
 (
   id int8 NOT NULL,
-  create_date CHARACTER VARYING(255),
+  create_date DATE,
   description CHARACTER VARYING(2000),
   name CHARACTER VARYING(255),
   portrait CHARACTER VARYING(255),
