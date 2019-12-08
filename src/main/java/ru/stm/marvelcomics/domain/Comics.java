@@ -1,12 +1,15 @@
 package ru.stm.marvelcomics.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import ru.stm.marvelcomics.domain.dto.CharacterDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import ru.stm.marvelcomics.util.Const;
 
 import javax.persistence.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Date;
 
 /**
  * <h2>Comic содержит данные о комиксе</h2>
@@ -31,8 +34,14 @@ public class Comics {
     /**
      * Дата публикации
      */
+    @JsonIgnore
     @OrderBy
-    private String release;
+    @Temporal(TemporalType.DATE)
+    private Date release;
+
+    @Transient
+    @JsonProperty("release")
+    private String releaseStr;
 
     /**
      * Путь к файлу изображения. Обложжка комикса.
@@ -60,7 +69,7 @@ public class Comics {
      * @param pages      коллекция {@link ComicsPage#ComicsPage()} - страницы комикса
      * @param characters список персонажей {@link Char#Char()}, задействованных в комиксе
      */
-    public Comics(Long id, String title, String release, String cover, Collection<ComicsPage> pages, Collection<Char> characters) {
+    public Comics(Long id, String title, Date release, String cover, Collection<ComicsPage> pages, Collection<Char> characters) {
         this.id = id;
         this.title = title;
         this.release = release;
@@ -134,7 +143,7 @@ public class Comics {
      *
      * @return release
      */
-    public String getRelease() {
+    public Date getRelease() {
         return this.release;
     }
 
@@ -190,8 +199,8 @@ public class Comics {
      *
      * @param release
      */
-    public void setRelease(String release) {
-        this.release = release;
+    public void setRelease(Date release) {
+        this.release = (release);
     }
 
     /**
@@ -220,5 +229,13 @@ public class Comics {
      */
     public void setCharacters(Collection<Char> characters) {
         this.characters = characters;
+    }
+
+    public String getReleaseStr() {
+        return new SimpleDateFormat(Const.FORMAT_DATE_TO_STRING).format(release);
+    }
+
+    public void setRelease(String releaseStr) throws ParseException {
+        this.release = new SimpleDateFormat(Const.FORMAT_STRING_TO_DATE).parse(releaseStr);
     }
 }
