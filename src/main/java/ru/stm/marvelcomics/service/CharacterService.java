@@ -65,11 +65,11 @@ public interface CharacterService {
      * Добавление комикса в список кмиксов, в которых задействован персонаж
      *
      * @param id       id персонажа
-     * @param comicsId id комикса
+     * @param comics   объект  {@link Comics#Comics()}
      * @return void
      * @throws org.springframework.http.HttpStatus.400 Если параметры заданы некорректно
      */
-    Mono<Object> addComics(long id, long comicsId);
+    Mono<Object> addComics(long id, Comics comics);
 
     /**
      * Удаление персонажа</br>
@@ -90,4 +90,5 @@ public interface CharacterService {
      */
     Mono<Void> deleteComics(Long id, Long comicsId);
 
+    Char getCharacterById(Long id);
 }
