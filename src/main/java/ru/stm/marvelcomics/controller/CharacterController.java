@@ -39,7 +39,7 @@ public class CharacterController {
      * @return json список объектов {@link CharacterDTO#preview(Char)} персонажей в кратком содержании
      */
     @GetMapping
-    public Flux<Object> get(
+    public Flux<CharacterDTO> get(
             @RequestParam(required = false, defaultValue = Const.LIMIT) Integer limit,
             @RequestParam(required = false, defaultValue = Const.OFFSET) Integer offset) {
         return characterService.get("name", Validation.LimitIsValid(limit), Validation.OffsetIsValid(offset));
@@ -53,7 +53,7 @@ public class CharacterController {
      */
 
     @GetMapping(value = "/{id}")
-    public Mono<Object> getCharacter(
+    public Mono<Char> getCharacter(
             @PathVariable long id) {
         return characterService.getById(id);
     }
@@ -65,7 +65,7 @@ public class CharacterController {
      * @return json список объектов {@link ComicsDTO#preview(Comics)} ()} комиксов в кратком содержании
      */
     @GetMapping(value = "/{id}/comics")
-    public Flux<Object> getComics(
+    public Flux<ComicsDTO> getComics(
             @PathVariable long id) {
         return characterService.getComics(id);
     }
@@ -79,7 +79,7 @@ public class CharacterController {
      */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Object> addCharacter(
+    public Mono<Char> addCharacter(
             @RequestPart("character") String jsonCharacter,
             @RequestPart(name = "img", required = false) Mono<FilePart> img) {
 
@@ -110,7 +110,7 @@ public class CharacterController {
      */
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Mono<Object> changeCharacter(
+    public Mono<Char> changeCharacter(
             @RequestPart("character") String jsonCharacter,
             @RequestPart(name = "img", required = false) Mono<FilePart> img) {
         Char character;

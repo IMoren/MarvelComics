@@ -5,6 +5,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.stm.marvelcomics.domain.Char;
 import ru.stm.marvelcomics.domain.Comics;
+import ru.stm.marvelcomics.domain.dto.CharacterDTO;
+import ru.stm.marvelcomics.domain.dto.ComicsDTO;
 
 /**
  * <h2>Интерфейс для работы с репозиторием персонажей </h2>
@@ -20,7 +22,7 @@ public interface CharacterService {
      * @param offset пропустить элементы
      * @return 0 или несколько объектов {@link ru.stm.marvelcomics.domain.dto.CharacterDTO#preview(Char)}
      */
-    Flux<Object> get(String sort, int limit, int offset);
+    Flux<CharacterDTO> get(String sort, int limit, int offset);
 
     /**
      * Поиск персонажа по его id
@@ -28,7 +30,7 @@ public interface CharacterService {
      * @param id уникальный идентификатор
      * @return 0 или 1 объект {@link Char#Char()}
      */
-    Mono<Object> getById(long id);
+    Mono<Char> getById(long id);
 
     /**
      * Получение списка комиксов в которых задействован персонаж с id
@@ -36,7 +38,7 @@ public interface CharacterService {
      * @param id
      * @return 0 или несколько объектов {@link ru.stm.marvelcomics.domain.dto.ComicsDTO#preview(Comics)}
      */
-    Flux<Object> getComics(long id);
+    Flux<ComicsDTO> getComics(long id);
 
     /**
      * Добавление персонажа</br>
@@ -46,7 +48,7 @@ public interface CharacterService {
      * @param file      1 файл изображение
      * @return объект {@link Char#Char()}
      */
-    Mono<Object> add(Char character, Mono<FilePart> file);
+    Mono<Char> add(Char character, Mono<FilePart> file);
 
     /**
      * Изменение данных персонажа</br>
@@ -57,7 +59,7 @@ public interface CharacterService {
      * @param file      1 файл изображение
      * @return объект {@link Char#Char()}
      */
-    Mono<Object> update(Char character, Mono<FilePart> file);
+    Mono<Char> update(Char character, Mono<FilePart> file);
 
     /**
      * Добавление комикса в список кмиксов, в которых задействован персонаж

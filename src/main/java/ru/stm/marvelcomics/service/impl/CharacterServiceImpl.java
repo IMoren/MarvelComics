@@ -29,41 +29,37 @@ public class CharacterServiceImpl implements CharacterService {
     private final ComicsRepository comicsRepo;
 
     @Override
-    public Flux<Object> get(String sort, int limit, int offset) {
-        return Flux.just(characterRepo
+    public Flux<CharacterDTO> get(String sort, int limit, int offset) {
+        return Flux.fromStream(characterRepo
                 .findAll(Sort.by(sort))
                 .stream()
                 .skip(offset)
                 .limit(limit)
-                .map(CharacterDTO::preview))
-                .cast(Object.class)
-                .defaultIfEmpty(Flux.empty());
+                .map(CharacterDTO::preview));
     }
 
     @Override
-    public Mono<Object> getById(long id) {
+    public Mono<Char> getById(long id) {
         return characterRepo.findById(id)
-                .map(character ->
-                        Mono.just(character).cast(Object.class))
+                .map(Mono::just)
                 .orElseGet(() ->
                         Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 String.format("по id = %d ничего не найдено", id))));
     }
 
     @Override
-    public Flux<Object> getComics(long id) {
+    public Flux<ComicsDTO> getComics(long id) {
         return characterRepo.findById(id)
                 .map(character ->
-                        Flux.just(character.getComicsList()
+                        Flux.fromStream(character.getComicsList()
                                 .stream()
-                                .map(ComicsDTO::preview))
-                                .cast(Object.class))
+                                .map(ComicsDTO::preview)))
                 .orElseGet(() -> Flux.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                         String.format("по id = %d ничего не найдено", id))));
     }
 
     @Override
-    public Mono<Object> add(Char character, Mono<FilePart> file) {
+    public Mono<Char> add(Char character, Mono<FilePart> file) {
         if (character == null) return Mono.empty();
         character.setId(null);
         Char charFromDB = characterRepo.save(character);
@@ -72,7 +68,7 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public Mono<Object> update(Char character, Mono<FilePart> file) {
+    public Mono<Char> update(Char character, Mono<FilePart> file) {
         if (!characterRepo.existsById(character.getId())) {
             return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
                     String.format("character c id = %d удален или никогда не существовал", character.getId())));
